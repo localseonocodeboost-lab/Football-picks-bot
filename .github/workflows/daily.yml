@@ -2,8 +2,8 @@ name: Daily picks
 
 on:
   schedule:
-    - cron: "0 8 * * *"
-  workflow_dispatch: {}
+    - cron: "0 8 * * *"   # 08:00 UTC every day
+  workflow_dispatch: {}    # manual "Run workflow" button
 
 permissions:
   contents: write
