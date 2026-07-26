@@ -8,6 +8,8 @@ Set MOCK=1 to run without a key (uses bot/mock_data.py).
 """
 import os
 import time
+from statistics import median
+
 import requests
 
 BASE = "https://v3.football.api-sports.io"
@@ -77,28 +79,36 @@ class ApiClient:
         except Exception as e:
             print(f"  (odds unavailable for fixture {fixture_id}: {e})")
             return {}
-        best = {}
+        buckets = {"OVER_2.5": [], "UNDER_2.5": [], "BTTS_YES": [], "BTTS_NO": []}
         for entry in resp:
             for bm in entry.get("bookmakers", []):
                 for bet in bm.get("bets", []):
                     for v in bet.get("values", []):
                         market = _map_market(bet["name"], str(v["value"]))
                         if market:
-                            odd = float(v["odd"])
-                            if odd > best.get(market, 0):
-                                best[market] = odd
-        return best
+                            try:
+                                buckets[market].append(float(v["odd"]))
+                            except (TypeError, ValueError):
+                                pass
+        # median across bookmakers → representative, outlier-resistant price
+        return {m: round(median(vals), 2) for m, vals in buckets.items() if vals}
+
+
+# Only the GOALS over/under and BTTS markets — never corners/cards/halves/etc.
+_GOALS_OU = {"goals over/under", "over/under", "over/under goals", "goals over under"}
+_BTTS = {"both teams score", "both teams to score",
+         "both teams to score - includes overtime"}
 
 
 def _map_market(bet_name, value):
-    bet = bet_name.lower()
-    val = value.lower()
-    if "over/under" in bet or bet == "goals over/under":
-        if val == "over 2.5":
+    bet = bet_name.lower().strip()
+    val = value.lower().strip()
+    if bet in _GOALS_OU:
+        if val in ("over 2.5", "o 2.5"):
             return "OVER_2.5"
-        if val == "under 2.5":
+        if val in ("under 2.5", "u 2.5"):
             return "UNDER_2.5"
-    if "both teams" in bet or "btts" in bet:
+    if bet in _BTTS:
         if val == "yes":
             return "BTTS_YES"
         if val == "no":
