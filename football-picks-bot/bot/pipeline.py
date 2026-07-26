@@ -1,12 +1,12 @@
-"""Daily pipeline — free-tier friendly.
+"""Daily pipeline — free-tier friendly, powered by the Predictions endpoint.
 
-Strategy: query fixtures BY DATE for a ~5 week window (the only history the
-free plan allows), use that single pool for both team form and settling
-yesterday's picks. Then pull pre-match odds per candidate and keep value bets.
+Free tier gives only a 3-day date window and blocks historical results, so we
+get each team's recent form from /predictions (which embeds last-5 goals
+averages), settle yesterday's picks from fixtures-by-date (in-window), and read
+pre-match odds. Same Poisson model, different form source.
 
-Budget (free tier = 100 req/day): ~36 date calls + up to MAX_CANDIDATES odds
-calls ≈ 48/day. The whole run is wrapped so it never crashes — worst case it
-publishes a dashboard with no new picks.
+Budget (100 req/day): 1 today + 2 settle-date + MAX_CANDIDATES*(1 pred + 1 odds)
+≈ 31/day.
 """
 import json
 import os
@@ -17,9 +17,7 @@ from bot import model
 
 DATA_FILE = os.path.join("data", "picks.json")
 STAKE = 10.0
-FORM_WINDOW_DAYS = 35   # how far back to build team form / settle from
-FORM_MATCHES = 8        # recent matches per team to average
-MAX_CANDIDATES = 14     # fixtures to pull odds for per day (request budget)
+MAX_CANDIDATES = 14
 MAX_PICKS = 5
 MIN_PROB = 0.55
 MIN_EDGE = 0.04
@@ -51,37 +49,20 @@ def save_db(db):
         json.dump(db, f, indent=1)
 
 
-def gather_pool(api):
-    """Fetch fixtures for today + previous FORM_WINDOW_DAYS days by date."""
-    today_str = date.today().isoformat()
-    today_fixtures, pool = [], []
-    for d in range(0, FORM_WINDOW_DAYS + 1):
+def settle_pending(api, db):
+    pending = [p for p in db["picks"] if p["status"] == "pending"]
+    if not pending:
+        return 0
+    pool = []
+    for d in (1, 0):  # yesterday, today — both inside the free 3-day window
         ds = (date.today() - timedelta(days=d)).isoformat()
         try:
-            fx = api.fixtures_by_date(ds)
+            pool += api.fixtures_by_date(ds)
         except Exception as e:
-            print(f"  (skipped {ds}: {e})")
-            continue
-        if d == 0:
-            today_fixtures = fx
-        pool += fx
-    return today_str, today_fixtures, pool
-
-
-def team_matches(pool, team_id):
-    ms = [m for m in pool
-          if m["fixture"]["status"]["short"] in FINISHED
-          and team_id in (m["teams"]["home"]["id"], m["teams"]["away"]["id"])]
-    ms.sort(key=lambda m: m["fixture"]["date"], reverse=True)
-    return ms[:FORM_MATCHES]
-
-
-def settle_pending(pool, db):
+            print(f"  (settle skip {ds}: {e})")
     by_id = {m["fixture"]["id"]: m for m in pool}
     settled = 0
-    for p in db["picks"]:
-        if p["status"] != "pending":
-            continue
+    for p in pending:
         m = by_id.get(p["fixture_id"])
         if not m:
             continue
@@ -99,26 +80,44 @@ def settle_pending(pool, db):
     return settled
 
 
-def generate_picks(api, db, today_str, today_fixtures, pool):
-    if any(p["date"] == today_str for p in db["picks"]):
+def rates_from_pred(pred, side):
+    """Build {scored, conceded, games} from a team's last-5 in a prediction."""
+    try:
+        l5 = pred["teams"][side]["last_5"]
+        g = l5["goals"]
+        scored = float(g["for"]["average"])
+        conceded = float(g["against"]["average"])
+        games = int(l5.get("played") or 5)
+        return {"scored": scored, "conceded": conceded, "games": games}
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def generate_picks(api, db):
+    today = date.today().isoformat()
+    if any(p["date"] == today for p in db["picks"]):
         print("Picks already generated today — skipping generation.")
         return []
 
-    candidates = [f for f in today_fixtures
+    fixtures = api.fixtures_by_date(today)
+    candidates = [f for f in fixtures
                   if f["league"]["id"] in LEAGUES
                   and f["fixture"]["status"]["short"] == "NS"]
     priority = {lid: i for i, lid in enumerate(LEAGUES)}
     candidates.sort(key=lambda f: priority[f["league"]["id"]])
     candidates = candidates[:MAX_CANDIDATES]
-    print(f"{len(today_fixtures)} fixtures today, {len(candidates)} in tracked leagues.")
+    print(f"{len(fixtures)} fixtures today, {len(candidates)} in tracked leagues.")
 
-    scored, with_odds = [], 0
+    scored, with_pred, with_odds = [], 0, 0
     for f in candidates:
-        hid, aid = f["teams"]["home"]["id"], f["teams"]["away"]["id"]
-        home = model.team_rates(team_matches(pool, hid), hid)
-        away = model.team_rates(team_matches(pool, aid), aid)
+        pred = api.predictions_for_fixture(f["fixture"]["id"])
+        if not pred:
+            continue
+        home = rates_from_pred(pred, "home")
+        away = rates_from_pred(pred, "away")
         if not home or not away or home["games"] < MIN_GAMES or away["games"] < MIN_GAMES:
             continue
+        with_pred += 1
         lam_h, lam_a = model.expected_goals(home, away)
         probs = model.market_probs(lam_h, lam_a)
         odds = api.odds_for_fixture(f["fixture"]["id"])
@@ -134,7 +133,7 @@ def generate_picks(api, db, today_str, today_fixtures, pool):
             if edge < MIN_EDGE:
                 continue
             scored.append({
-                "fixture_id": f["fixture"]["id"], "date": today_str,
+                "fixture_id": f["fixture"]["id"], "date": today,
                 "kickoff": f["fixture"]["date"], "league": f["league"]["name"],
                 "home": f["teams"]["home"]["name"], "away": f["teams"]["away"]["name"],
                 "market": market, "market_label": model.MARKET_LABELS[market],
@@ -144,7 +143,7 @@ def generate_picks(api, db, today_str, today_fixtures, pool):
                 "status": "pending", "profit": None,
             })
 
-    print(f"Odds available for {with_odds}/{len(candidates)} candidates.")
+    print(f"Form via predictions: {with_pred}; odds: {with_odds}; of {len(candidates)} candidates.")
     scored.sort(key=lambda s: s["edge"], reverse=True)
     picks, used = [], set()
     for s in scored:
@@ -170,11 +169,9 @@ def run():
     api = ApiClient()
     db = load_db()
     try:
-        today_str, today_fixtures, pool = gather_pool(api)
-        print(f"Pool: {len(pool)} fixtures across {FORM_WINDOW_DAYS} days.")
-        settled = settle_pending(pool, db)
+        settled = settle_pending(api, db)
         print(f"Settled {settled} pick(s).")
-        picks = generate_picks(api, db, today_str, today_fixtures, pool)
+        picks = generate_picks(api, db)
         for p in picks:
             print(f"  PICK: {p['home']} v {p['away']} — {p['market_label']} "
                   f"@ {p['odds']} (model {p['model_prob']:.0%}, edge +{p['edge']:.1%})")
