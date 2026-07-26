@@ -35,6 +35,7 @@
   .pick-card { background:var(--card); border:1px solid var(--line);
                 border-radius:12px; padding:16px; margin-bottom:10px; }
   .pick-card .market { color:var(--accent); margin:4px 0; }
+  .ko { color:var(--muted); font-size:.85rem; margin:2px 0 4px; }
   .edge { color:var(--muted); font-size:.85rem; margin-left:8px; }
   .reason { color:var(--muted); font-size:.9rem; margin-top:6px; }
   .row { display:flex; justify-content:space-between; align-items:center;
@@ -55,7 +56,7 @@
 </style></head><body><div class="wrap">
   <h1>My Betting Bot</h1>
   <p class="sub">Personal football model · every pick tracked, wins and losses ·
-    updated 26 Jul 2026 13:04</p>
+    all times UK (GMT/BST) · updated 26 Jul 2026 17:05 BST</p>
 
   <div class="stats">
     <div class="stat"><div class="label">Win rate</div>
@@ -75,34 +76,39 @@
   <h2>Today's picks</h2>
   
         <div class="pick-card">
+          <div class="match">Malmo FF v IF Elfsborg</div>
+          <div class="ko">⏱ Kick-off Sun 26 Jul, 15:30 BST · Allsvenskan</div>
+          <div class="market">Over 2.5 Goals @ 1.68
+            <span class="edge">model 78% · edge +18.8%</span></div>
+          <p class="reason">Malmo FF averaging 2.8 scored / 1.4 conceded over last 5; IF Elfsborg 1.0 / 1.8. Model projects 3.2–1.0 xG. Over 2.5 Goals lands in 78% of simulations.</p>
+        </div>
+        <div class="pick-card">
+          <div class="match">KFUM Oslo v Molde</div>
+          <div class="ko">⏱ Kick-off Sun 26 Jul, 16:00 BST · Eliteserien</div>
+          <div class="market">Under 2.5 Goals @ 2.14
+            <span class="edge">model 66% · edge +19.4%</span></div>
+          <p class="reason">KFUM Oslo averaging 0.8 scored / 1.2 conceded over last 5; Molde 1.4 / 1.4. Model projects 0.9–1.1 xG. Under 2.5 Goals lands in 66% of simulations.</p>
+        </div>
+        <div class="pick-card">
           <div class="match">Widzew Łódź v Motor Lublin</div>
+          <div class="ko">⏱ Kick-off Sun 26 Jul, 16:30 BST · Ekstraklasa</div>
           <div class="market">Under 2.5 Goals @ 1.88
             <span class="edge">model 100% · edge +46.4%</span></div>
           <p class="reason">Widzew Łódź averaging 0.0 scored / 0.0 conceded over last 5; Motor Lublin 0.0 / 0.0. Model projects 0.1–0.1 xG. Under 2.5 Goals lands in 100% of simulations.</p>
         </div>
         <div class="pick-card">
           <div class="match">RB Bragantino v Coritiba</div>
+          <div class="ko">⏱ Kick-off Sun 26 Jul, 22:30 BST · Serie A</div>
           <div class="market">Over 2.5 Goals @ 1.95
             <span class="edge">model 75% · edge +23.6%</span></div>
           <p class="reason">RB Bragantino averaging 1.8 scored / 0.8 conceded over last 5; Coritiba 1.8 / 2.0. Model projects 2.9–1.0 xG. Over 2.5 Goals lands in 75% of simulations.</p>
         </div>
         <div class="pick-card">
           <div class="match">Palmeiras v Atletico-MG</div>
+          <div class="ko">⏱ Kick-off Sun 26 Jul, 23:30 BST · Serie A</div>
           <div class="market">Under 2.5 Goals @ 1.84
             <span class="edge">model 77% · edge +22.3%</span></div>
           <p class="reason">Palmeiras averaging 1.8 scored / 0.6 conceded over last 5; Atletico-MG 1.2 / 0.8. Model projects 1.2–0.5 xG. Under 2.5 Goals lands in 77% of simulations.</p>
-        </div>
-        <div class="pick-card">
-          <div class="match">KFUM Oslo v Molde</div>
-          <div class="market">Under 2.5 Goals @ 2.14
-            <span class="edge">model 66% · edge +19.4%</span></div>
-          <p class="reason">KFUM Oslo averaging 0.8 scored / 1.2 conceded over last 5; Molde 1.4 / 1.4. Model projects 0.9–1.1 xG. Under 2.5 Goals lands in 66% of simulations.</p>
-        </div>
-        <div class="pick-card">
-          <div class="match">Malmo FF v IF Elfsborg</div>
-          <div class="market">Over 2.5 Goals @ 1.68
-            <span class="edge">model 78% · edge +18.8%</span></div>
-          <p class="reason">Malmo FF averaging 2.8 scored / 1.4 conceded over last 5; IF Elfsborg 1.0 / 1.8. Model projects 3.2–1.0 xG. Over 2.5 Goals lands in 78% of simulations.</p>
         </div>
 
   <h2>All results</h2>
@@ -111,7 +117,7 @@
           <div>
             <div class="match">Widzew Łódź v Motor Lublin</div>
             <div class="detail">Under 2.5 Goals @ 1.88
-              · Ekstraklasa · 2026-07-26</div>
+              · Ekstraklasa · 2026-07-26 · KO Sun 26 Jul, 16:30 BST</div>
           </div>
           <span class="badge pend">⏳ Pending</span>
         </div>
@@ -119,7 +125,7 @@
           <div>
             <div class="match">RB Bragantino v Coritiba</div>
             <div class="detail">Over 2.5 Goals @ 1.95
-              · Serie A · 2026-07-26</div>
+              · Serie A · 2026-07-26 · KO Sun 26 Jul, 22:30 BST</div>
           </div>
           <span class="badge pend">⏳ Pending</span>
         </div>
@@ -127,7 +133,7 @@
           <div>
             <div class="match">Palmeiras v Atletico-MG</div>
             <div class="detail">Under 2.5 Goals @ 1.84
-              · Serie A · 2026-07-26</div>
+              · Serie A · 2026-07-26 · KO Sun 26 Jul, 23:30 BST</div>
           </div>
           <span class="badge pend">⏳ Pending</span>
         </div>
@@ -135,7 +141,7 @@
           <div>
             <div class="match">KFUM Oslo v Molde</div>
             <div class="detail">Under 2.5 Goals @ 2.14
-              · Eliteserien · 2026-07-26</div>
+              · Eliteserien · 2026-07-26 · KO Sun 26 Jul, 16:00 BST</div>
           </div>
           <span class="badge pend">⏳ Pending</span>
         </div>
@@ -143,7 +149,7 @@
           <div>
             <div class="match">Malmo FF v IF Elfsborg</div>
             <div class="detail">Over 2.5 Goals @ 1.68
-              · Allsvenskan · 2026-07-26</div>
+              · Allsvenskan · 2026-07-26 · KO Sun 26 Jul, 15:30 BST</div>
           </div>
           <span class="badge pend">⏳ Pending</span>
         </div>
