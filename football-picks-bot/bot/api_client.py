@@ -1,6 +1,8 @@
 """Thin client for API-Football (v3.football.api-sports.io).
 
-Free tier: 100 requests/day. The pipeline is budgeted to stay well under.
+Free tier: 100 requests/day, and it BLOCKS the `last`/`next` params and
+restricts direct `season` queries. So we only use two things the free tier
+allows: fixtures-by-date (for both form and settlement) and pre-match odds.
 Set MOCK=1 to run without a key (uses bot/mock_data.py).
 """
 import os
@@ -25,7 +27,7 @@ class ApiClient:
 
     def _get(self, path, params):
         self.requests_made += 1
-        for attempt in range(3):
+        for _ in range(3):
             r = requests.get(f"{BASE}/{path}", headers=self.headers,
                              params=params, timeout=30)
             if r.status_code == 429:
@@ -43,26 +45,16 @@ class ApiClient:
             return self.mock.fixtures_by_date(date_str)
         return self._get("fixtures", {"date": date_str})
 
-    def fixtures_by_ids(self, ids):
-        """Settle results: up to 20 fixture ids per request."""
-        if MOCK:
-            return self.mock.fixtures_by_ids(ids)
-        out = []
-        for i in range(0, len(ids), 20):
-            chunk = "-".join(str(x) for x in ids[i:i + 20])
-            out += self._get("fixtures", {"ids": chunk})
-        return out
-
-    def team_last_fixtures(self, team_id, n=6):
-        if MOCK:
-            return self.mock.team_last_fixtures(team_id, n)
-        return self._get("fixtures", {"team": team_id, "last": n, "status": "FT"})
-
     def odds_for_fixture(self, fixture_id):
-        """Returns {market: best_decimal_odds} for our four markets."""
+        """Returns {market: best_decimal_odds} for our four markets.
+        Returns {} on any failure so one bad fixture never stops the run."""
         if MOCK:
             return self.mock.odds_for_fixture(fixture_id)
-        resp = self._get("odds", {"fixture": fixture_id})
+        try:
+            resp = self._get("odds", {"fixture": fixture_id})
+        except Exception as e:
+            print(f"  (odds unavailable for fixture {fixture_id}: {e})")
+            return {}
         best = {}
         for entry in resp:
             for bm in entry.get("bookmakers", []):
