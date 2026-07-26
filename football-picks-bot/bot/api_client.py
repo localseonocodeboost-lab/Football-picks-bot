@@ -12,11 +12,13 @@ import requests
 
 BASE = "https://v3.football.api-sports.io"
 MOCK = os.environ.get("MOCK") == "1"
+MIN_INTERVAL = 6.5   # free tier caps at 10 requests/minute → pace ~9/min
 
 
 class ApiClient:
     def __init__(self):
         self.requests_made = 0
+        self.last_call = 0.0
         if MOCK:
             from bot import mock_data
             self.mock = mock_data
@@ -27,17 +29,25 @@ class ApiClient:
         self.headers = {"x-apisports-key": key}
 
     def _get(self, path, params):
-        self.requests_made += 1
-        for _ in range(3):
+        for _ in range(5):
+            wait = MIN_INTERVAL - (time.time() - self.last_call)
+            if wait > 0:
+                time.sleep(wait)
+            self.last_call = time.time()
+            self.requests_made += 1
             r = requests.get(f"{BASE}/{path}", headers=self.headers,
                              params=params, timeout=30)
             if r.status_code == 429:
-                time.sleep(10)
+                time.sleep(60)
                 continue
             r.raise_for_status()
             body = r.json()
-            if body.get("errors"):
-                raise RuntimeError(f"API error on /{path}: {body['errors']}")
+            errs = body.get("errors")
+            if errs:
+                if "rate" in str(errs).lower():
+                    time.sleep(60)   # per-minute limit hit — wait it out and retry
+                    continue
+                raise RuntimeError(f"API error on /{path}: {errs}")
             return body["response"]
         raise RuntimeError("Rate limited repeatedly")
 
