@@ -3,8 +3,28 @@ import html
 import os
 from datetime import date, datetime
 
+try:
+    from zoneinfo import ZoneInfo
+    UK = ZoneInfo("Europe/London")
+except Exception:  # pragma: no cover
+    UK = None
+
 OUT = os.path.join("docs", "index.html")
 STAKE = 10.0
+
+
+def _kick(p, with_date=False):
+    """Kick-off time in UK time (auto GMT/BST), e.g. '19:30 BST' or 'Sat 26 Jul, 19:30'."""
+    iso = p.get("kickoff")
+    if not iso:
+        return ""
+    try:
+        dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+        if UK:
+            dt = dt.astimezone(UK)
+        return dt.strftime("%a %d %b, %H:%M %Z" if with_date else "%H:%M %Z").strip()
+    except (ValueError, TypeError):
+        return ""
 
 
 def build(db):
@@ -36,21 +56,27 @@ def build(db):
         else:
             badge = '<span class="badge pend">⏳ Pending</span>'
         score = f' · {p["score"]}' if p.get("score") else ""
+        ko = _kick(p, with_date=True)
+        ko_txt = f" · KO {ko}" if ko else ""
         rows.append(f"""
         <div class="row">
           <div>
             <div class="match">{html.escape(p['home'])} v {html.escape(p['away'])}</div>
             <div class="detail">{html.escape(p['market_label'])} @ {p['odds']}
-              · {html.escape(p['league'])} · {p['date']}{score}</div>
+              · {html.escape(p['league'])} · {p['date']}{ko_txt}{score}</div>
           </div>
           {badge}
         </div>""")
 
     today_cards = []
-    for p in todays:
+    for p in sorted(todays, key=lambda x: x.get("kickoff") or ""):
+        ko = _kick(p, with_date=True)
+        ko_html = (f'<div class="ko">⏱ Kick-off {html.escape(ko)} '
+                   f'· {html.escape(p["league"])}</div>') if ko else ""
         today_cards.append(f"""
         <div class="pick-card">
           <div class="match">{html.escape(p['home'])} v {html.escape(p['away'])}</div>
+          {ko_html}
           <div class="market">{html.escape(p['market_label'])} @ {p['odds']}
             <span class="edge">model {p['model_prob']:.0%} · edge +{p['edge']:.1%}</span></div>
           <p class="reason">{html.escape(p['reasoning'])}</p>
@@ -95,6 +121,7 @@ def build(db):
   .pick-card {{ background:var(--card); border:1px solid var(--line);
                 border-radius:12px; padding:16px; margin-bottom:10px; }}
   .pick-card .market {{ color:var(--accent); margin:4px 0; }}
+  .ko {{ color:var(--muted); font-size:.85rem; margin:2px 0 4px; }}
   .edge {{ color:var(--muted); font-size:.85rem; margin-left:8px; }}
   .reason {{ color:var(--muted); font-size:.9rem; margin-top:6px; }}
   .row {{ display:flex; justify-content:space-between; align-items:center;
@@ -115,7 +142,7 @@ def build(db):
 </style></head><body><div class="wrap">
   <h1>My Betting Bot</h1>
   <p class="sub">Personal football model · every pick tracked, wins and losses ·
-    updated {datetime.now().strftime('%d %b %Y %H:%M')}</p>
+    all times UK (GMT/BST) · updated {datetime.now(UK).strftime('%d %b %Y %H:%M %Z') if UK else datetime.now().strftime('%d %b %Y %H:%M')}</p>
 
   <div class="stats">
     <div class="stat"><div class="label">Win rate</div>
@@ -146,4 +173,6 @@ def build(db):
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
         f.write(page)
+    # Tell GitHub Pages to serve static HTML directly, not via Jekyll.
+    open(os.path.join("docs", ".nojekyll"), "w").close()
     print(f"Dashboard written to {OUT}")
