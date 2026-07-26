@@ -1,9 +1,7 @@
 """Thin client for API-Football (v3.football.api-sports.io).
-
-Free tier: 100 requests/day, and it BLOCKS the `last`/`next` params and
-restricts direct `season` queries. So we only use two things the free tier
-allows: fixtures-by-date (for both form and settlement) and pre-match odds.
-Set MOCK=1 to run without a key (uses bot/mock_data.py).
+Free tier blocks `last`/`next` and restricts `season`, so we only use
+fixtures-by-date (form + settlement) and pre-match odds.
+Set MOCK=1 to run without a key.
 """
 import os
 import time
@@ -46,8 +44,6 @@ class ApiClient:
         return self._get("fixtures", {"date": date_str})
 
     def odds_for_fixture(self, fixture_id):
-        """Returns {market: best_decimal_odds} for our four markets.
-        Returns {} on any failure so one bad fixture never stops the run."""
         if MOCK:
             return self.mock.odds_for_fixture(fixture_id)
         try:
