@@ -1,3 +1,105 @@
 {
- "picks": []
+ "picks": [
+  {
+   "fixture_id": 1553107,
+   "date": "2026-07-26",
+   "kickoff": "2026-07-26T15:30:00+00:00",
+   "league": "Ekstraklasa",
+   "home": "Widzew \u0141\u00f3d\u017a",
+   "away": "Motor Lublin",
+   "market": "UNDER_2.5",
+   "market_label": "Under 2.5 Goals",
+   "odds": 1.88,
+   "model_prob": 0.996,
+   "edge": 0.464,
+   "xg": [
+    0.15,
+    0.15
+   ],
+   "reasoning": "Widzew \u0141\u00f3d\u017a averaging 0.0 scored / 0.0 conceded over last 5; Motor Lublin 0.0 / 0.0. Model projects 0.1\u20130.1 xG. Under 2.5 Goals lands in 100% of simulations.",
+   "status": "pending",
+   "profit": null
+  },
+  {
+   "fixture_id": 1492302,
+   "date": "2026-07-26",
+   "kickoff": "2026-07-26T21:30:00+00:00",
+   "league": "Serie A",
+   "home": "RB Bragantino",
+   "away": "Coritiba",
+   "market": "OVER_2.5",
+   "market_label": "Over 2.5 Goals",
+   "odds": 1.95,
+   "model_prob": 0.749,
+   "edge": 0.236,
+   "xg": [
+    2.93,
+    0.98
+   ],
+   "reasoning": "RB Bragantino averaging 1.8 scored / 0.8 conceded over last 5; Coritiba 1.8 / 2.0. Model projects 2.9\u20131.0 xG. Over 2.5 Goals lands in 75% of simulations.",
+   "status": "pending",
+   "profit": null
+  },
+  {
+   "fixture_id": 1492306,
+   "date": "2026-07-26",
+   "kickoff": "2026-07-26T22:30:00+00:00",
+   "league": "Serie A",
+   "home": "Palmeiras",
+   "away": "Atletico-MG",
+   "market": "UNDER_2.5",
+   "market_label": "Under 2.5 Goals",
+   "odds": 1.84,
+   "model_prob": 0.767,
+   "edge": 0.223,
+   "xg": [
+    1.17,
+    0.49
+   ],
+   "reasoning": "Palmeiras averaging 1.8 scored / 0.6 conceded over last 5; Atletico-MG 1.2 / 0.8. Model projects 1.2\u20130.5 xG. Under 2.5 Goals lands in 77% of simulations.",
+   "status": "pending",
+   "profit": null
+  },
+  {
+   "fixture_id": 1494711,
+   "date": "2026-07-26",
+   "kickoff": "2026-07-26T15:00:00+00:00",
+   "league": "Eliteserien",
+   "home": "KFUM Oslo",
+   "away": "Molde",
+   "market": "UNDER_2.5",
+   "market_label": "Under 2.5 Goals",
+   "odds": 2.14,
+   "model_prob": 0.661,
+   "edge": 0.194,
+   "xg": [
+    0.91,
+    1.14
+   ],
+   "reasoning": "KFUM Oslo averaging 0.8 scored / 1.2 conceded over last 5; Molde 1.4 / 1.4. Model projects 0.9\u20131.1 xG. Under 2.5 Goals lands in 66% of simulations.",
+   "status": "pending",
+   "profit": null
+  },
+  {
+   "fixture_id": 1494222,
+   "date": "2026-07-26",
+   "kickoff": "2026-07-26T14:30:00+00:00",
+   "league": "Allsvenskan",
+   "home": "Malmo FF",
+   "away": "IF Elfsborg",
+   "market": "OVER_2.5",
+   "market_label": "Over 2.5 Goals",
+   "odds": 1.68,
+   "model_prob": 0.784,
+   "edge": 0.188,
+   "xg": [
+    3.2,
+    0.95
+   ],
+   "reasoning": "Malmo FF averaging 2.8 scored / 1.4 conceded over last 5; IF Elfsborg 1.0 / 1.8. Model projects 3.2\u20131.0 xG. Over 2.5 Goals lands in 78% of simulations.",
+   "status": "pending",
+   "profit": null
+  }
+ ],
+ "updated": "2026-07-26T13:04:35.884348+00:00"
 }
