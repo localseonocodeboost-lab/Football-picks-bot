@@ -1,13 +1,4 @@
-"""Daily pipeline — free-tier friendly.
-
-Strategy: query fixtures BY DATE for a ~5 week window (the only history the
-free plan allows), use that single pool for both team form and settling
-yesterday's picks. Then pull pre-match odds per candidate and keep value bets.
-
-Budget (free tier = 100 req/day): ~36 date calls + up to MAX_CANDIDATES odds
-calls ≈ 48/day. The whole run is wrapped so it never crashes — worst case it
-publishes a dashboard with no new picks.
-"""
+"""Daily pipeline — free-tier friendly (form + settlement from date queries)."""
 import json
 import os
 from datetime import date, datetime, timedelta, timezone
@@ -17,9 +8,9 @@ from bot import model
 
 DATA_FILE = os.path.join("data", "picks.json")
 STAKE = 10.0
-FORM_WINDOW_DAYS = 35   # how far back to build team form / settle from
-FORM_MATCHES = 8        # recent matches per team to average
-MAX_CANDIDATES = 14     # fixtures to pull odds for per day (request budget)
+FORM_WINDOW_DAYS = 35
+FORM_MATCHES = 8
+MAX_CANDIDATES = 14
 MAX_PICKS = 5
 MIN_PROB = 0.55
 MIN_EDGE = 0.04
@@ -52,8 +43,6 @@ def save_db(db):
 
 
 def gather_pool(api):
-    """Fetch fixtures for today + previous FORM_WINDOW_DAYS days by date."""
-    today_str = date.today().isoformat()
     today_fixtures, pool = [], []
     for d in range(0, FORM_WINDOW_DAYS + 1):
         ds = (date.today() - timedelta(days=d)).isoformat()
@@ -65,7 +54,7 @@ def gather_pool(api):
         if d == 0:
             today_fixtures = fx
         pool += fx
-    return today_str, today_fixtures, pool
+    return date.today().isoformat(), today_fixtures, pool
 
 
 def team_matches(pool, team_id):
@@ -103,7 +92,6 @@ def generate_picks(api, db, today_str, today_fixtures, pool):
     if any(p["date"] == today_str for p in db["picks"]):
         print("Picks already generated today — skipping generation.")
         return []
-
     candidates = [f for f in today_fixtures
                   if f["league"]["id"] in LEAGUES
                   and f["fixture"]["status"]["short"] == "NS"]
@@ -162,7 +150,7 @@ def _reasoning(f, home, away, lam_h, lam_a, market, p):
     h, a = f["teams"]["home"]["name"], f["teams"]["away"]["name"]
     return (f"{h} averaging {home['scored']:.1f} scored / {home['conceded']:.1f} "
             f"conceded over last {home['games']}; {a} {away['scored']:.1f} / "
-            f"{away['conceded']:.1f}. Model projects {lam_h:.1f}–{lam_a:.1f} xG. "
+            f"{away['conceded']:.1f}. Model projects {lam_h:.1f}\u2013{lam_a:.1f} xG. "
             f"{model.MARKET_LABELS[market]} lands in {p:.0%} of simulations.")
 
 
@@ -176,10 +164,10 @@ def run():
         print(f"Settled {settled} pick(s).")
         picks = generate_picks(api, db, today_str, today_fixtures, pool)
         for p in picks:
-            print(f"  PICK: {p['home']} v {p['away']} — {p['market_label']} "
+            print(f"  PICK: {p['home']} v {p['away']} \u2014 {p['market_label']} "
                   f"@ {p['odds']} (model {p['model_prob']:.0%}, edge +{p['edge']:.1%})")
         if not picks:
-            print("No value picks today (normal — the filter is deliberately picky).")
+            print("No value picks today (normal).")
     except Exception as e:
         print(f"Run hit an error but will still publish the dashboard: {e}")
     db["updated"] = datetime.now(timezone.utc).isoformat()
