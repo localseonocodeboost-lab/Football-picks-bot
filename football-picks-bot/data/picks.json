@@ -17,8 +17,9 @@
     0.15
    ],
    "reasoning": "Widzew \u0141\u00f3d\u017a averaging 0.0 scored / 0.0 conceded over last 5; Motor Lublin 0.0 / 0.0. Model projects 0.1\u20130.1 xG. Under 2.5 Goals lands in 100% of simulations.",
-   "status": "pending",
-   "profit": null
+   "status": "lost",
+   "profit": -10.0,
+   "score": "2-2"
   },
   {
    "fixture_id": 1492302,
@@ -37,8 +38,9 @@
     0.98
    ],
    "reasoning": "RB Bragantino averaging 1.8 scored / 0.8 conceded over last 5; Coritiba 1.8 / 2.0. Model projects 2.9\u20131.0 xG. Over 2.5 Goals lands in 75% of simulations.",
-   "status": "pending",
-   "profit": null
+   "status": "lost",
+   "profit": -10.0,
+   "score": "0-0"
   },
   {
    "fixture_id": 1492306,
@@ -57,8 +59,9 @@
     0.49
    ],
    "reasoning": "Palmeiras averaging 1.8 scored / 0.6 conceded over last 5; Atletico-MG 1.2 / 0.8. Model projects 1.2\u20130.5 xG. Under 2.5 Goals lands in 77% of simulations.",
-   "status": "pending",
-   "profit": null
+   "status": "lost",
+   "profit": -10.0,
+   "score": "1-2"
   },
   {
    "fixture_id": 1494711,
@@ -77,8 +80,9 @@
     1.14
    ],
    "reasoning": "KFUM Oslo averaging 0.8 scored / 1.2 conceded over last 5; Molde 1.4 / 1.4. Model projects 0.9\u20131.1 xG. Under 2.5 Goals lands in 66% of simulations.",
-   "status": "pending",
-   "profit": null
+   "status": "lost",
+   "profit": -10.0,
+   "score": "2-4"
   },
   {
    "fixture_id": 1494222,
@@ -97,9 +101,70 @@
     0.95
    ],
    "reasoning": "Malmo FF averaging 2.8 scored / 1.4 conceded over last 5; IF Elfsborg 1.0 / 1.8. Model projects 3.2\u20131.0 xG. Over 2.5 Goals lands in 78% of simulations.",
+   "status": "won",
+   "profit": 6.8,
+   "score": "1-2"
+  },
+  {
+   "fixture_id": 1548977,
+   "date": "2026-07-27",
+   "kickoff": "2026-07-27T17:00:00+00:00",
+   "league": "Superliga",
+   "home": "Randers FC",
+   "away": "Silkeborg",
+   "market": "UNDER_2.5",
+   "market_label": "Under 2.5 Goals",
+   "odds": 2.21,
+   "model_prob": 0.996,
+   "edge": 0.544,
+   "xg": [
+    0.15,
+    0.15
+   ],
+   "reasoning": "Randers FC averaging 0.0 scored / 0.0 conceded over last 5; Silkeborg 0.0 / 0.0. Model projects 0.1\u20130.1 xG. Under 2.5 Goals lands in 100% of simulations.",
+   "status": "pending",
+   "profit": null
+  },
+  {
+   "fixture_id": 1553109,
+   "date": "2026-07-27",
+   "kickoff": "2026-07-27T17:00:00+00:00",
+   "league": "Ekstraklasa",
+   "home": "Zaglebie Lubin",
+   "away": "Piast Gliwice",
+   "market": "BTTS_NO",
+   "market_label": "Both Teams To Score \u2014 No",
+   "odds": 1.82,
+   "model_prob": 0.981,
+   "edge": 0.431,
+   "xg": [
+    0.15,
+    0.15
+   ],
+   "reasoning": "Zaglebie Lubin averaging 0.0 scored / 0.0 conceded over last 5; Piast Gliwice 0.0 / 0.0. Model projects 0.1\u20130.1 xG. Both Teams To Score \u2014 No lands in 98% of simulations.",
+   "status": "pending",
+   "profit": null
+  },
+  {
+   "fixture_id": 1494220,
+   "date": "2026-07-27",
+   "kickoff": "2026-07-27T17:00:00+00:00",
+   "league": "Allsvenskan",
+   "home": "BK Hacken",
+   "away": "AIK Stockholm",
+   "market": "OVER_2.5",
+   "market_label": "Over 2.5 Goals",
+   "odds": 1.46,
+   "model_prob": 0.832,
+   "edge": 0.147,
+   "xg": [
+    2.15,
+    2.4
+   ],
+   "reasoning": "BK Hacken averaging 2.2 scored / 2.2 conceded over last 5; AIK Stockholm 1.6 / 1.2. Model projects 2.2\u20132.4 xG. Over 2.5 Goals lands in 83% of simulations.",
    "status": "pending",
    "profit": null
   }
  ],
- "updated": "2026-07-26T16:05:17.576176+00:00"
+ "updated": "2026-07-27T10:14:17.353441+00:00"
 }
